@@ -52,7 +52,7 @@ Warning: patch-package detected a patch file version mismatch
   To generate a new one, just repeat the steps you made to generate the first
   one.
 
-  i.e. manually make the appropriate file changes, then run 
+  i.e. manually make the appropriate file changes, then run
 
     patch-package underscore
 

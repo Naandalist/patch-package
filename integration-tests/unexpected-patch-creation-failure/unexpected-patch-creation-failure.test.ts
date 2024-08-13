@@ -1,5 +1,6 @@
 import { runIntegrationTest } from "../runIntegrationTest"
 runIntegrationTest({
   projectName: "unexpected-patch-creation-failure",
-  shouldProduceSnapshots: true,
+  exitCode: 1,
+  shouldProduceSnapshots: false,
 })

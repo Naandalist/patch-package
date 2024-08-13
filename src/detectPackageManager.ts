@@ -2,7 +2,7 @@ import fs from "fs-extra"
 import { join } from "./path"
 import chalk from "chalk"
 import process from "process"
-import findWorkspaceRoot from "find-yarn-workspace-root"
+import { findWorkspacesRoot } from "find-workspaces"
 
 export type PackageManager = "yarn" | "npm" | "npm-shrinkwrap"
 
@@ -38,16 +38,18 @@ package-lock.json if you don't need it
 }
 
 export const detectPackageManager = (
-  appRootPath: string,
+  appPath: string,
   overridePackageManager: PackageManager | null,
 ): PackageManager => {
+  const lockfilePath = findWorkspacesRoot(appPath)?.location ?? appPath
   const packageLockExists = fs.existsSync(
-    join(appRootPath, "package-lock.json"),
+    join(lockfilePath, "package-lock.json"),
   )
   const shrinkWrapExists = fs.existsSync(
-    join(appRootPath, "npm-shrinkwrap.json"),
+    join(lockfilePath, "npm-shrinkwrap.json"),
   )
-  const yarnLockExists = fs.existsSync(join(appRootPath, "yarn.lock"))
+  const yarnLockExists = fs.existsSync(join(lockfilePath, "yarn.lock"))
+
   if ((packageLockExists || shrinkWrapExists) && yarnLockExists) {
     if (overridePackageManager) {
       return overridePackageManager
@@ -62,11 +64,9 @@ export const detectPackageManager = (
     } else {
       return shrinkWrapExists ? "npm-shrinkwrap" : "npm"
     }
-  } else if (yarnLockExists || findWorkspaceRoot()) {
+  } else if (yarnLockExists) {
     return "yarn"
-  } else {
-    printNoLockfilesError()
-    process.exit(1)
   }
-  throw Error()
+  printNoLockfilesError()
+  process.exit(1)
 }

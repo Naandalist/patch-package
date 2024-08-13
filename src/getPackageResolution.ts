@@ -4,7 +4,7 @@ import { PackageManager, detectPackageManager } from "./detectPackageManager"
 import { readFileSync, existsSync } from "fs-extra"
 import { parse as parseYarnLockFile } from "@yarnpkg/lockfile"
 import yaml from "yaml"
-import findWorkspaceRoot from "find-yarn-workspace-root"
+import { findWorkspacesRoot } from "find-workspaces"
 import { getPackageVersion } from "./getPackageVersion"
 import { coerceSemVer } from "./coerceSemVer"
 
@@ -17,22 +17,36 @@ export function getPackageResolution({
   packageManager: PackageManager
   appPath: string
 }) {
-  if (packageManager === "yarn") {
-    let lockFilePath = "yarn.lock"
-    if (!existsSync(lockFilePath)) {
-      const workspaceRoot = findWorkspaceRoot()
-      if (!workspaceRoot) {
-        throw new Error("Can't find yarn.lock file")
+  const isYarn = packageManager === "yarn"
+  const lockfileName = isYarn
+    ? "yarn.lock"
+    : packageManager === "npm-shrinkwrap"
+    ? "npm-shrinkwrap.json"
+    : "package-lock.json"
+  let lockfilePath = lockfileName
+  if (!existsSync(lockfilePath)) {
+    const workspaceRoot = findWorkspacesRoot(appPath)
+    if (!workspaceRoot) {
+      throw new Error(`Can't find ${lockfileName} file`)
+    }
+    lockfilePath = join(workspaceRoot.location, lockfileName)
+  }
+  if (!existsSync(lockfilePath)) {
+    throw new Error(`Can't find ${lockfileName} file`)
+  }
+  const lockfileString = readFileSync(lockfilePath, "utf8")
+
+  if (isYarn) {
+    let appLockFile: Record<
+      string,
+      {
+        version: string
+        resolution?: string
+        resolved?: string
       }
-      lockFilePath = join(workspaceRoot, "yarn.lock")
-    }
-    if (!existsSync(lockFilePath)) {
-      throw new Error("Can't find yarn.lock file")
-    }
-    const lockFileString = readFileSync(lockFilePath).toString()
-    let appLockFile
-    if (lockFileString.includes("yarn lockfile v1")) {
-      const parsedYarnLockFile = parseYarnLockFile(lockFileString)
+    >
+    if (lockfileString.includes("yarn lockfile v1")) {
+      const parsedYarnLockFile = parseYarnLockFile(lockfileString)
       if (parsedYarnLockFile.type !== "success") {
         throw new Error("Could not parse yarn v1 lock file")
       } else {
@@ -40,7 +54,7 @@ export function getPackageResolution({
       }
     } else {
       try {
-        appLockFile = yaml.parse(lockFileString)
+        appLockFile = yaml.parse(lockfileString)
       } catch (e) {
         console.log(e)
         throw new Error("Could not parse yarn v2 lock file")
@@ -59,7 +73,6 @@ export function getPackageResolution({
     )
 
     const resolutions = entries.map(([_, v]) => {
-      // @ts-ignore
       return v.resolved
     })
 
@@ -71,7 +84,7 @@ export function getPackageResolution({
 
     if (new Set(resolutions).size !== 1) {
       console.log(
-        `Ambigious lockfile entries for ${packageDetails.pathSpecifier}. Using version ${installedVersion}`,
+        `Ambiguous lockfile entries for ${packageDetails.pathSpecifier}. Using version ${installedVersion}`,
       )
       return installedVersion
     }
@@ -80,59 +93,89 @@ export function getPackageResolution({
       return resolutions[0]
     }
 
-    const resolution = entries[0][0].slice(packageDetails.name.length + 1)
+    const packageName = packageDetails.name
+
+    const resolutionVersion = entries[0][1].version
+
+    // `@backstage/integration@npm:^1.5.0, @backstage/integration@npm:^1.7.0, @backstage/integration@npm:^1.7.2`
+    // ->
+    // `^1.5.0 ^1.7.0 ^1.7.2`
+    const resolution = entries[0][0]
+      .replace(new RegExp(packageName + "@", "g"), "")
+      .replace(/npm:/g, "")
+      .replace(/,/g, "")
 
     // resolve relative file path
     if (resolution.startsWith("file:.")) {
       return `file:${resolve(appPath, resolution.slice("file:".length))}`
     }
 
-    if (resolution.startsWith("npm:")) {
-      return resolution.replace("npm:", "")
-    }
-
-    return resolution
+    // add `resolutionVersion` to ensure correct version, `^1.0.0` could resolve latest `v1.3.0`, but `^1.0.0 1.2.1` won't
+    return resolutionVersion ? resolution + " " + resolutionVersion : resolution
   } else {
-    const lockfile = require(join(
-      appPath,
-      packageManager === "npm-shrinkwrap"
-        ? "npm-shrinkwrap.json"
-        : "package-lock.json",
-    ))
-    const lockFileStack = [lockfile]
+    const lockfile = JSON.parse(lockfileString)
+    const lockfileStack = [lockfile]
     for (const name of packageDetails.packageNames.slice(0, -1)) {
-      const child = lockFileStack[0].dependencies
-      if (child && name in child) {
-        lockFileStack.push(child[name])
+      const { dependencies } = lockfileStack[0]
+      if (dependencies && name in dependencies) {
+        lockfileStack.push(dependencies[name])
       }
     }
-    lockFileStack.reverse()
-    const relevantStackEntry = lockFileStack.find((entry) => {
+
+    // Handle Workspaces
+    const rootPackageName = `node_modules/${packageDetails.packageNames[0]}`
+    const { packages } = lockfile
+    if (packages && rootPackageName in packages) {
+      if (packages[rootPackageName].link) {
+        // It's a workspace
+        const { resolved } = packages[rootPackageName]
+        if (resolved) {
+          packageDetails.workspacePath = packageDetails.path.replace(
+            rootPackageName,
+            resolved,
+          )
+        }
+      }
+    }
+
+    lockfileStack.reverse()
+    const relevantStackEntry = lockfileStack.find((entry) => {
       if (entry.dependencies) {
         return entry.dependencies && packageDetails.name in entry.dependencies
       } else if (entry.packages) {
-        return entry.packages && packageDetails.path in entry.packages
+        return (
+          entry.packages &&
+          (packageDetails.path in entry.packages ||
+            packageDetails.workspacePath in entry.packages)
+        )
       }
-      throw new Error("Cannot find dependencies or packages in lockfile")
     })
+
+    if (relevantStackEntry === undefined) {
+      throw new Error("Cannot find dependencies or packages in lockfile")
+    }
     const pkg = relevantStackEntry.dependencies
       ? relevantStackEntry.dependencies[packageDetails.name]
-      : relevantStackEntry.packages[packageDetails.path]
+      : relevantStackEntry.packages[packageDetails.path] ||
+        relevantStackEntry.packages[packageDetails.workspacePath]
+
     return pkg.resolved || pkg.version || pkg.from
   }
 }
 
 if (require.main === module) {
   const packageDetails = getPatchDetailsFromCliString(process.argv[2])
-  if (!packageDetails) {
+  if (packageDetails) {
+    const cwd = process.cwd()
+    console.log(
+      getPackageResolution({
+        appPath: cwd,
+        packageDetails,
+        packageManager: detectPackageManager(cwd, null),
+      }),
+    )
+  } else {
     console.log(`Can't find package ${process.argv[2]}`)
-    process.exit(1)
+    process.exitCode = 1
   }
-  console.log(
-    getPackageResolution({
-      appPath: process.cwd(),
-      packageDetails,
-      packageManager: detectPackageManager(process.cwd(), null),
-    }),
-  )
 }

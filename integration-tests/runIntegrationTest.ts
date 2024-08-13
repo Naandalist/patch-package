@@ -13,10 +13,12 @@ export const patchPackageTarballPath = resolve(
 
 export function runIntegrationTest({
   projectName,
-  shouldProduceSnapshots,
+  exitCode = 0,
+  shouldProduceSnapshots = false,
 }: {
   projectName: string
-  shouldProduceSnapshots: boolean
+  exitCode?: number
+  shouldProduceSnapshots?: boolean
 }) {
   describe(`Test ${projectName}:`, () => {
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
@@ -52,8 +54,8 @@ export function runIntegrationTest({
       },
     )
 
-    it("should exit with 0 status", () => {
-      expect(result.status).toBe(0)
+    it(`should exit with ${exitCode} status`, () => {
+      expect(result.status).toBe(exitCode)
     })
 
     const output = result.stdout.toString() + "\n" + result.stderr.toString()
