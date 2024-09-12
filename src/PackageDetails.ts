@@ -2,24 +2,23 @@ import { join } from "./path"
 
 export interface PackageDetails {
   humanReadablePathSpecifier: string
-  pathSpecifier: string
-  path: string
-  name: string
   isNested: boolean
+  name: string
   packageNames: string[]
+  path: string
+  pathSpecifier: string
+  workspacePath: string
 }
 
 export interface PatchedPackageDetails extends PackageDetails {
-  version: string
-  patchFilename: string
   isDevOnly: boolean
+  patchFilename: string
+  version: string
   sequenceName?: string
   sequenceNumber?: number
 }
 
-export function parseNameAndVersion(
-  str: string,
-): {
+export function parseNameAndVersion(str: string): {
   packageName: string
   version?: string
   sequenceName?: string
@@ -107,23 +106,28 @@ export function getPackageDetailsFromPatchFilename(
     return null
   }
 
+  const humanReadablePathSpecifier = parts
+    .map(({ packageName: name }) => name)
+    .join(" => ")
+
+  const path = join(
+    "node_modules",
+    parts.map(({ packageName: name }) => name).join("/node_modules/"),
+  )
+
   return {
     name: lastPart.packageName,
     version: lastPart.version,
-    path: join(
-      "node_modules",
-      parts.map(({ packageName: name }) => name).join("/node_modules/"),
-    ),
-    patchFilename,
-    pathSpecifier: parts.map(({ packageName: name }) => name).join("/"),
-    humanReadablePathSpecifier: parts
-      .map(({ packageName: name }) => name)
-      .join(" => "),
+    humanReadablePathSpecifier,
+    isDevOnly: patchFilename.endsWith(".dev.patch"),
     isNested: parts.length > 1,
     packageNames: parts.map(({ packageName: name }) => name),
-    isDevOnly: patchFilename.endsWith(".dev.patch"),
+    path,
+    patchFilename,
+    pathSpecifier: parts.map(({ packageName: name }) => name).join("/"),
     sequenceName: lastPart.sequenceName,
     sequenceNumber: lastPart.sequenceNumber,
+    workspacePath: "",
   }
 }
 
@@ -131,7 +135,6 @@ export function getPatchDetailsFromCliString(
   specifier: string,
 ): PackageDetails | null {
   const parts = specifier.split("/")
-
   const packageNames = []
 
   let scope: string | null = null
@@ -155,11 +158,12 @@ export function getPatchDetailsFromCliString(
   const path = join("node_modules", packageNames.join("/node_modules/"))
 
   return {
-    packageNames,
-    path,
-    name: packageNames[packageNames.length - 1],
     humanReadablePathSpecifier: packageNames.join(" => "),
     isNested: packageNames.length > 1,
+    name: packageNames[packageNames.length - 1],
+    packageNames,
+    path,
     pathSpecifier: specifier,
+    workspacePath: "",
   }
 }

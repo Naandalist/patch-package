@@ -31,19 +31,23 @@ function getInstalledPackageVersion({
   pathSpecifier,
   isDevOnly,
   patchFilename,
+  ignoreMissing,
 }: {
   appPath: string
   path: string
   pathSpecifier: string
   isDevOnly: boolean
   patchFilename: string
+  ignoreMissing: boolean
 }): null | string {
   const packageDir = join(appPath, path)
   if (!existsSync(packageDir)) {
     if (process.env.NODE_ENV === "production" && isDevOnly) {
       return null
     }
-
+    if (ignoreMissing) {
+      return null
+    }
     let err =
       `${chalk.red("Error:")} Patch file found for package ${posix.basename(
         pathSpecifier,
@@ -98,6 +102,7 @@ export function applyPatchesForApp({
   shouldExitWithError,
   shouldExitWithWarning,
   bestEffort,
+  ignoreMissing,
 }: {
   appPath: string
   reverse: boolean
@@ -105,6 +110,7 @@ export function applyPatchesForApp({
   shouldExitWithError: boolean
   shouldExitWithWarning: boolean
   bestEffort: boolean
+  ignoreMissing: boolean
 }): void {
   const patchesDirectory = join(appPath, patchDir)
   const groupedPatches = getGroupedPatches(patchesDirectory)
@@ -128,6 +134,7 @@ export function applyPatchesForApp({
       warnings,
       errors,
       bestEffort,
+      ignoreMissing,
     })
   }
 
@@ -170,6 +177,7 @@ export function applyPatchesForPackage({
   warnings,
   errors,
   bestEffort,
+  ignoreMissing,
 }: {
   patches: PatchedPackageDetails[]
   appPath: string
@@ -178,6 +186,7 @@ export function applyPatchesForPackage({
   warnings: string[]
   errors: string[]
   bestEffort: boolean
+  ignoreMissing: boolean
 }) {
   const pathSpecifier = patches[0].pathSpecifier
   const state = patches.length > 1 ? getPatchApplicationState(patches[0]) : null
@@ -245,11 +254,12 @@ export function applyPatchesForPackage({
               patchDetails,
             })),
         patchFilename,
+        ignoreMissing,
       })
       if (!installedPackageVersion) {
-        // it's ok we're in production mode and this is a dev only package
+        // it's ok we're ignoring missing packages OR in production mode and this is a dev only package
         console.log(
-          `Skipping dev-only ${chalk.bold(
+          `Skipping ${ignoreMissing ? "missing" : "dev-only"} ${chalk.bold(
             pathSpecifier,
           )}@${version} ${chalk.blue("✔")}`,
         )
@@ -562,7 +572,7 @@ ${chalk.red.bold("**ERROR**")} ${chalk.red(
   To generate a new one, just repeat the steps you made to generate the first
   one.
 
-  i.e. manually make the appropriate file changes, then run 
+  i.e. manually make the appropriate file changes, then run
 
     patch-package ${pathSpecifier}
 

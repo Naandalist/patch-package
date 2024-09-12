@@ -114,9 +114,8 @@ export function executeTestCase(testCase: TestCase) {
 
   const patchFileContents = patchResult.stdout.toString()
 
-  const patchFileContentsWithBlankLines = removeLeadingSpaceOnBlankLines(
-    patchFileContents,
-  )
+  const patchFileContentsWithBlankLines =
+    removeLeadingSpaceOnBlankLines(patchFileContents)
 
   // skipping because we add source to the hunks now, so we need to strip that out before comparing
   it.skip("looks the same whether parsed with blank lines or not", () => {

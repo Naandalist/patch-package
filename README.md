@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="https://ds300.github.io/patch-package/patch-package.svg" width="80%" alt="patch-package" />
-</p>
-
 `patch-package` lets app authors instantly make and keep fixes to npm
 dependencies. It's a vital band-aid for those of us living on the bleeding edge.
 
@@ -228,6 +224,14 @@ Run `patch-package` without arguments to apply all patches in your project.
 - `--patch-dir`
 
   Specify the name for the directory in which the patch files are located
+
+- `--ignore-missing`
+
+  Ignores patches for packages that are not present in node_modules.
+  This is useful when working with monorepos and wanting to install sub-packages
+  separately from the root package, with pruned dependencies.
+
+  See https://github.com/ds300/patch-package/issues/339 for background.
 
 #### Notes
 
