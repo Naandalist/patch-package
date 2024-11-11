@@ -46,7 +46,6 @@ npx patch-package package-name
 ### Applying Patches
 
 Patches are automatically applied when you run:
-
 ```bash
 yarn install
 # or
