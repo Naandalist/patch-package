@@ -22,34 +22,20 @@
     "@types/jquery" "^2.0.46"
     reflect-metadata "^0.1.8"
 
-"@types/angular@1.5":
-  version "1.5.23"
-  resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.5.23.tgz#ccd175556e341064da8e4d6a0c3e49f4b99a2182"
-  integrity sha1-zNF1VW40EGTajk1qDD5J9LmaIYI=
-  dependencies:
-    "@types/jquery" "*"
+"@types/angular@1.8.9":
+  version "1.8.9"
+  resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.8.9.tgz#d1ae3e87a67f72342d55ff26e611df83df0fb176"
+  integrity sha512-Z0HukqZkx0fotsV3QO00yqU9NzcQI+tMcrum+8MvfB4ePqCawZctF/gz6QiuII+T1ax+LitNoPx/eICTgnF4sg==
 
 "@types/angular@^1.6.51":
   version "1.6.53"
   resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.53.tgz#0c73ce13ff245e0b9ad23bf0091f3de572d4de87"
   integrity sha512-46op53S8hnDl9o6VOmMAXBv3laK8i2OyXOfriDwe6VRfh8wVFilIniLaNsz2pPpAM4oUwsBYFt7ZThe+IMnIeA==
 
-"@types/jquery@*":
-  version "3.3.29"
-  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.3.29.tgz#680a2219ce3c9250483722fccf5570d1e2d08abd"
-  integrity sha512-FhJvBninYD36v3k6c+bVk1DSZwh7B5Dpb/Pyk3HKVsiohn0nhbefZZ+3JXbWQhFyt0MxSl2jRDdGQPHeOHFXrQ==
-  dependencies:
-    "@types/sizzle" "*"
-
 "@types/jquery@^2.0.46":
   version "2.0.52"
   resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-2.0.52.tgz#4edc00c5255631925a02dc1a19b30748dc178092"
   integrity sha512-UJ3xu1c0WQLk7ZV7iO3RNduVOz0WK1PWUHY/LlmYTnln60hoUEGWPZ/9YzRRMIO6MDGMAs9hpDe7dR7aXQy/Vw==
-
-"@types/sizzle@*":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.2.tgz#a811b8c18e2babab7d542b3365887ae2e4d9de47"
-  integrity sha512-7EJYyKTL7tFR8+gDbB6Wwz/arpGa0Mywk1TJbNzKzHtzbwVmY4HR9WqS5VV7dsBUKQmPNr192jHr/VpBluj/hg==
 
 ansi-regex@^2.0.0:
   version "2.1.1"
