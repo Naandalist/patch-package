@@ -5,7 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "@microsoft/mezzurite-angular": "^2.0.18",
-    "@types/angular": "1.5",
+    "@types/angular": "1.8.9",
     "replace": "^1.0.1",
     "rimraf": "^2.6.3"
   }
