@@ -1,6 +1,6 @@
 {
   "name": "@naandalist/patch-package",
-  "version": "8.1.4",
+  "version": "8.1.5",
   "description": "Fix broken node modules with no fuss",
   "main": "dist/index.js",
   "repository": "github:naandalist/patch-package",
@@ -34,9 +34,8 @@
   "scripts": {
     "prepublishOnly": "yarn run clean && yarn run build",
     "build": "tsc --project tsconfig.build.json",
-    "new-integration-test": "ts-node integration-tests/newIntegrationTest.ts",
     "clean": "rimraf dist patch-package.test*.tgz",
-    "format": "prettier --no-semi --write --trailing-comma=all src{/**,}/*.ts integration-tests{/**,}/*.ts property-based-tests{/**,}/*.ts",
+    "format": "prettier --no-semi --write --trailing-comma=all src{/**,}/*.ts property-based-tests{/**,}/*.ts",
     "prepack": "rimraf dist/**/*.test.js",
     "test": "./run-tests.sh --runInBand"
   },
@@ -60,7 +59,7 @@
     "transform": {
       ".(ts|tsx)": "ts-jest"
     },
-    "testRegex": "/(src|integration-tests|property-based-tests)/.+\\.test\\.ts$",
+    "testRegex": "/(src|property-based-tests)/.+\\.test\\.ts$",
     "moduleFileExtensions": [
       "ts",
       "tsx",
@@ -120,5 +119,5 @@
     "patch-package-banner.png",
     "README.md"
   ],
-  "packageManager": "yarn@1.22.19"
+  "packageManager": "yarn@1.22.22"
 }
