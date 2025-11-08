@@ -1,7 +1,7 @@
 # @naandalist/patch-package
 
 This package is a forked version of the official
-[patch-package](https://www.npmjs.com/package/patch-package). Its main purpose
+[patch-package v8.0.0](https://www.npmjs.com/package/patch-package). Its main purpose
 is to fix a security vulnerability (MEDIUM, and HIGH SEVERITY).
 
 ## Security Improvements
@@ -10,9 +10,9 @@ This fork fix all security vulnerabilities identified by Snyk:
 
 | No. | Issue Type                                           | Dependency    | Severity  | Vulnerability ID                                                                       |
 | --- | ---------------------------------------------------- | ------------- | --------- | -------------------------------------------------------------------------------------- |
-| 1   | Regular Expression Denial of Service (ReDoS)         | `cross-spawn` | High 🚨   | [SNYK-JS-CROSSSPAWN-8303230](https://security.snyk.io/vuln/SNYK-JS-CROSSSPAWN-8303230) |
-| 2   | Inefficient Regular Expression Complexity            | `micromatch`  | High 🚨   | [SNYK-JS-MICROMATCH-6838728](https://security.snyk.io/vuln/SNYK-JS-MICROMATCH-6838728) |
-| 3   | Missing Release of Resource after Effective Lifetime | `inflight`    | Medium 🚨 | [SNYK-JS-INFLIGHT-6095116](https://security.snyk.io/vuln/SNYK-JS-INFLIGHT-6095116)     |
+| 1   | Regular Expression Denial of Service (ReDoS)         | `cross-spawn` | High   | [SNYK-JS-CROSSSPAWN-8303230](https://security.snyk.io/vuln/SNYK-JS-CROSSSPAWN-8303230) |
+| 2   | Inefficient Regular Expression Complexity            | `micromatch`  | High   | [SNYK-JS-MICROMATCH-6838728](https://security.snyk.io/vuln/SNYK-JS-MICROMATCH-6838728) |
+| 3   | Missing Release of Resource after Effective Lifetime | `inflight`    | Medium | [SNYK-JS-INFLIGHT-6095116](https://security.snyk.io/vuln/SNYK-JS-INFLIGHT-6095116)     |
 
 
 <!-- ![snyk-finding-inflight](/snyk-finding-inflight.png) -->

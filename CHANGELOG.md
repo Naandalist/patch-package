@@ -1,5 +1,30 @@
 # Changelog
 
+## 8.1.6
+
+### Performance Improvements
+
+- Optimize file hashing with larger buffer sizes for better performance
+- Reduce redundant file operations and improve caching mechanisms
+- Optimize RegExp usage and string operations
+- Add comprehensive performance tests to ensure optimizations
+
+### Changes
+
+- Improve efficiency in `applyPatches`, `filterFiles`, `getPackageResolution`, `hash`, and `makePatch` modules
+- All performance improvements maintain backward compatibility
+
+## 8.1.5
+
+### Security Fixes
+
+- Fix Snyk High Finding: Update `cross-spawn` to address security vulnerabilities
+- Fix Snyk Medium Finding: Address `inflight` package security issue
+
+### Documentation
+
+- Update README with latest information
+
 ## 8.0.0
 
 - Add support for multiple patch files for a single package. #474

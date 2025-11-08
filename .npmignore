@@ -1,0 +1,37 @@
+# Development scripts
+endless-tests.sh
+run-tests.sh
+
+# Test files and directories
+property-based-tests/
+**/*.test.ts
+**/*.test.js
+**/__snapshots__/
+
+# TypeScript configs
+tsconfig.json
+tsconfig.build.json
+tslint.json
+typings/
+
+# IDE/Editor
+.vscode/
+.prettierrc
+
+# CI/CD
+.github/
+
+# Package manager configs
+.yarnrc
+.yarnrc.yml
+.yarn/
+yarn.lock
+package-lock.json
+
+# Generated/temporary files
+*.tgz
+*.svg
+snyk-finding-inflight.png
+
+# Source maps
+**/*.map
