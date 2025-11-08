@@ -485,11 +485,23 @@ export function makePatch({
       `${chalk.green("✔")} Created file ${join(patchDir, patchFileName)}\n`,
     )
 
+    // Cache hash calculations to avoid redundant file reads
+    const patchHashCache = new Map<string, string>()
+    const getPatchHash = (filePath: string): string => {
+      const cached = patchHashCache.get(filePath)
+      if (cached !== undefined) {
+        return cached
+      }
+      const hash = hashFile(filePath)
+      patchHashCache.set(filePath, hash)
+      return hash
+    }
+
     const prevState: PatchState[] = patchesToApplyBeforeDiffing.map(
       (p): PatchState => ({
         patchFilename: p.patchFilename,
         didApply: true,
-        patchContentHash: hashFile(join(appPath, patchDir, p.patchFilename)),
+        patchContentHash: getPatchHash(join(appPath, patchDir, p.patchFilename)),
       }),
     )
     const nextState: PatchState[] = [
@@ -497,7 +509,7 @@ export function makePatch({
       {
         patchFilename: patchFileName,
         didApply: true,
-        patchContentHash: hashFile(patchPath),
+        patchContentHash: getPatchHash(patchPath),
       },
     ]
 
@@ -527,7 +539,7 @@ export function makePatch({
             nextState.push({
               patchFilename: patch.patchFilename,
               didApply: false,
-              patchContentHash: hashFile(patchFilePath),
+              patchContentHash: getPatchHash(patchFilePath),
             })
             break
           } else {
@@ -535,7 +547,7 @@ export function makePatch({
             nextState.push({
               patchFilename: patch.patchFilename,
               didApply: true,
-              patchContentHash: hashFile(patchFilePath),
+              patchContentHash: getPatchHash(patchFilePath),
             })
           }
         }

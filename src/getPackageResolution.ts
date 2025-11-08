@@ -100,10 +100,12 @@ export function getPackageResolution({
     // `@backstage/integration@npm:^1.5.0, @backstage/integration@npm:^1.7.0, @backstage/integration@npm:^1.7.2`
     // ->
     // `^1.5.0 ^1.7.0 ^1.7.2`
+    // Optimize by combining multiple replace operations into a single pass
     const resolution = entries[0][0]
       .replace(new RegExp(packageName + "@", "g"), "")
-      .replace(/npm:/g, "")
-      .replace(/,/g, "")
+      .replace(/npm:|,/g, (match) => (match === "npm:" ? "" : " "))
+      .replace(/\s+/g, " ")
+      .trim()
 
     // resolve relative file path
     if (resolution.startsWith("file:.")) {

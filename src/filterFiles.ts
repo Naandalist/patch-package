@@ -7,11 +7,15 @@ export function removeIgnoredFiles(
   includePaths: RegExp,
   excludePaths: RegExp,
 ) {
+  // Pre-compute the directory prefix to avoid repeated string operations
+  const dirPrefix = `${dir}/`
+  const dirPrefixLength = dirPrefix.length
+  
   klawSync(dir, { nodir: true })
-    .map((item) => item.path.slice(`${dir}/`.length))
+    .map((item) => item.path.slice(dirPrefixLength))
     .filter(
       (relativePath) =>
-        !relativePath.match(includePaths) || relativePath.match(excludePaths),
+        !includePaths.test(relativePath) || excludePaths.test(relativePath),
     )
     .forEach((relativePath) => removeSync(join(dir, relativePath)))
 }

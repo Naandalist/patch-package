@@ -1,7 +1,9 @@
 import { createHash } from "crypto"
 import { openSync, readSync, closeSync, statSync } from "fs"
 
-const bufferSize = 1024
+// Increased buffer size from 1KB to 64KB for better performance
+// Larger buffer reduces system calls and improves I/O throughput
+const bufferSize = 64 * 1024
 
 const buffer = Buffer.alloc(bufferSize)
 

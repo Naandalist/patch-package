@@ -192,6 +192,19 @@ export function applyPatchesForPackage({
   const state = patches.length > 1 ? getPatchApplicationState(patches[0]) : null
   const unappliedPatches = patches.slice(0)
   const appliedPatches: PatchedPackageDetails[] = []
+  
+  // Cache hash calculations to avoid redundant file reads
+  const patchHashCache = new Map<string, string>()
+  const getPatchHash = (patchFilename: string): string => {
+    const cached = patchHashCache.get(patchFilename)
+    if (cached !== undefined) {
+      return cached
+    }
+    const hash = hashFile(join(appPath, patchDir, patchFilename))
+    patchHashCache.set(patchFilename, hash)
+    return hash
+  }
+  
   // if there are multiple patches to apply, we can't rely on the reverse-patch-dry-run behavior to make this operation
   // idempotent, so instead we need to check the state file to see whether we have already applied any of the patches
   // todo: once this is battle tested we might want to use the same approach for single patches as well, but it's not biggie since the dry run thing is fast
@@ -202,9 +215,7 @@ export function applyPatchesForPackage({
         break
       }
       const patchToApply = unappliedPatches[0]
-      const currentPatchHash = hashFile(
-        join(appPath, patchDir, patchToApply.patchFilename),
-      )
+      const currentPatchHash = getPatchHash(patchToApply.patchFilename)
       if (patchThatWasApplied.patchContentHash === currentPatchHash) {
         // this patch was applied we can skip it
         appliedPatches.push(unappliedPatches.shift()!)
@@ -368,9 +379,7 @@ export function applyPatchesForPackage({
           packageDetails: patches[0],
           patches: patches.slice(0, lastReversedPatchIndex).map((patch) => ({
             didApply: true,
-            patchContentHash: hashFile(
-              join(appPath, patchDir, patch.patchFilename),
-            ),
+            patchContentHash: getPatchHash(patch.patchFilename),
             patchFilename: patch.patchFilename,
           })),
           isRebasing: false,
@@ -380,9 +389,7 @@ export function applyPatchesForPackage({
       const nextState = appliedPatches.map(
         (patch): PatchState => ({
           didApply: true,
-          patchContentHash: hashFile(
-            join(appPath, patchDir, patch.patchFilename),
-          ),
+          patchContentHash: getPatchHash(patch.patchFilename),
           patchFilename: patch.patchFilename,
         }),
       )
@@ -390,9 +397,7 @@ export function applyPatchesForPackage({
       if (failedPatch) {
         nextState.push({
           didApply: false,
-          patchContentHash: hashFile(
-            join(appPath, patchDir, failedPatch.patchFilename),
-          ),
+          patchContentHash: getPatchHash(failedPatch.patchFilename),
           patchFilename: failedPatch.patchFilename,
         })
       }
