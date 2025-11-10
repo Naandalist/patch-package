@@ -103,7 +103,7 @@
     "semver": "^7.5.3",
     "slash": "^2.0.0",
     "tmp": "^0.0.33",
-    "yaml": "^2.2.2"
+    "yaml": "^2.8.1"
   },
   "resolutions": {
     "micromatch": "^4.0.4"
