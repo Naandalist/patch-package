@@ -1,75 +1,54 @@
 # @naandalist/patch-package
 
-This package is a forked version of the official
-[patch-package v8.0.0](https://www.npmjs.com/package/patch-package). Its main purpose
-is to fix a security vulnerability (MEDIUM, and HIGH SEVERITY).
+> **Deprecated.** This package is no longer maintained.
+>
+> Do not use it in new projects. Existing users should migrate off it.
 
-## Security Improvements
+This was a fork of [patch-package](https://github.com/ds300/patch-package) v8.0.0, published to address Snyk findings in dependencies at the time (`cross-spawn`, `micromatch`, `inflight`).
 
-This fork fix all security vulnerabilities identified by Snyk:
+That reason no longer holds. Official [`patch-package@8.0.1`](https://www.npmjs.com/package/patch-package) already addresses the security issues that motivated this fork. Package managers also have native patching now.
 
-| No. | Issue Type                                           | Dependency    | Severity  | Vulnerability ID                                                                       |
-| --- | ---------------------------------------------------- | ------------- | --------- | -------------------------------------------------------------------------------------- |
-| 1   | Regular Expression Denial of Service (ReDoS)         | `cross-spawn` | High   | [SNYK-JS-CROSSSPAWN-8303230](https://security.snyk.io/vuln/SNYK-JS-CROSSSPAWN-8303230) |
-| 2   | Inefficient Regular Expression Complexity            | `micromatch`  | High   | [SNYK-JS-MICROMATCH-6838728](https://security.snyk.io/vuln/SNYK-JS-MICROMATCH-6838728) |
-| 3   | Missing Release of Resource after Effective Lifetime | `inflight`    | Medium | [SNYK-JS-INFLIGHT-6095116](https://security.snyk.io/vuln/SNYK-JS-INFLIGHT-6095116)     |
+Original `patch-package` was created by [David Sheldrick](https://github.com/ds300).
 
+## What to use instead
 
-<!-- ![snyk-finding-inflight](/snyk-finding-inflight.png) -->
+Pick one:
 
-## Installation
+1. **Official package** — [`patch-package@8.0.1`](https://www.npmjs.com/package/patch-package) (or later)
+2. **Native tooling** (preferred if your package manager supports it)
+   - Yarn Berry: `yarn patch`
+   - pnpm: `pnpm patch`
+   - npm 12+: `npm patch`
 
-```bash
-npm install @naandalist/patch-package
-# or
-yarn add @naandalist/patch-package
-```
-
-## Usage
-
-The usage remains identical to the original patch-package, maintaining full
-compatibility while providing enhanced security.
-
-### Creating Patches
-
-1. Make your changes to package files in the `node_modules` folder
-2. Run the following command:
+## Migrate from this fork
 
 ```bash
-# Using yarn
-yarn patch-package package-name
-
-# Using npm
-npx patch-package package-name
+npm uninstall @naandalist/patch-package
+npm install -D patch-package
 ```
 
-### Applying Patches
+Keep your existing `patches/` files. They are compatible with official `patch-package`.
 
-Patches are automatically applied when you run:
-```bash
-yarn install
-# or
-npm install
+Add or keep this script:
+
+```json
+{
+  "scripts": {
+    "postinstall": "patch-package"
+  }
+}
 ```
 
-For detailed usage instructions and advanced features, please refer to the
-[original patch-package documentation](https://www.npmjs.com/package/patch-package).
+If you use Yarn Berry, pnpm, or npm 12+, consider moving those patches to the native patch workflow instead of a `postinstall` hook.
 
-## Why Use This Fork?
+## Status
 
-- ✅ All original functionality preserved
-- 🛡️ Snyk finding security vulnerabilities fixed
-- 💪 Regular security maintenance
+- No further releases
+- No security maintenance
+- Issues and PRs will not be reviewed
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+The npm package should be marked deprecated. After that, this repository can be archived.
 
 ## License
 
-MIT - See [LICENSE](LICENSE) for details.
-
----
-
-For more details, please visit
-[GitHub repository](https://github.com/naandalist/patch-package).
+MIT — see [LICENSE](LICENSE).
